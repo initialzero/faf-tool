@@ -3,6 +3,6 @@
 !.gitignore
 !.npmignore
 !Gruntfile.js
-!package.js
+!package.json
 !settings.json.example
 !Readme.md

@@ -20,6 +20,8 @@
     - updates modules from repos
     - runs merge from trunk command for FAF modules and JRS
     - argument "--accept=<value>" accepts. Default "postpone".
+    - argment "--parallel=<true|false>" used for parallel/serial downmerge. Default "true"
+    - argument "--separate-changelist=<true|false>" used to add module to it's own svn changelist. Default "true"
 
 
 - Options
@@ -29,6 +31,8 @@
     - `--username=<username>` - svn username
     - `--password=<password>` - svn password
     - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
+    - `--parallel=<true|false>` - argument for parallel command execution, works for "downmerge" task. Default "true".
+    - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
 
 ## How to use
 
@@ -82,6 +86,8 @@ Checking out faf modules and jrs if specified
 #### downmerge
 Runs svn up and svn merge from trunk command for FAF modules and JRS
 Accepts "--accept=<value>" svn argument. Default "postpone".
+Accepts "--parallel=<true|false>" svn argument. Default "true".
+Accepts "--separate-changelist=<true|false>" svn argument. Default "true".
 
 ## settings.json
 Remove unnecessary modules, set branch names for faf, ce and pro
