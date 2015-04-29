@@ -6,14 +6,13 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
     !grunt.option("no-time") && require('time-grunt')(grunt);
 
-    grunt.file.copy("settings.json.example", cwd + "/settings.json.example");
-
     grunt.file.setBase(cwd);
 
     try {
         settings = grunt.file.readJSON('settings.json');
     } catch (e) {
         writeHelp();
+        grunt.file.copy("settings.json.example", cwd + "/settings.json.example");
         grunt.fatal(e.message + "\r\nUse settings.json.example to create settings.json");
     }
 
@@ -47,12 +46,17 @@ module.exports = function(grunt) {
         "init"
     ]);
 
+    grunt.registerTask('update-init', 'Update all feature branches and setup FAF.', [
+        "update-all",
+        "init"
+    ]);
+
     grunt.registerTask('downmerge', 'Downmerge project from trunk', function() {
-        executeAsyncTaskForAllModules(svnUpModuleAndDownmerge, "Downmerge module: ", true);
+        executeAsyncTaskForAllModules.call(this, svnUpModuleAndDownmerge, "Downmerge module: ", true);
     });
 
     grunt.registerTask('removecl', 'Remove all modules from downmerge changelists', function() {
-        executeAsyncTaskForAllModules(svnRemoveFromChangelist, "Remove all svn changelists from: ", true);
+        executeAsyncTaskForAllModules.call(this, svnRemoveFromChangelist, "Remove all svn changelists from: ", true);
     });
 
     grunt.registerTask('default', 'Default task.', function() {
@@ -207,7 +211,11 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('checkout-full', 'Checkout full selected repos', function() {
-        executeAsyncTaskForAllModules(checkoutFull, "Checkout module: ", true);
+        executeAsyncTaskForAllModules.call(this, checkoutFull, "Checkout module: ", true);
+    });
+
+    grunt.registerTask('update-all', 'Update all selected repos', function() {
+        executeAsyncTaskForAllModules.call(this, svnUpModule, "Update module: ", true);
     });
 
     grunt.registerTask('load-init-settings', 'Load settings and create config for initialization commands.', function(){
