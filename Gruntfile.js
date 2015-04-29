@@ -48,30 +48,11 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('downmerge', 'Downmerge project from trunk', function() {
-        var tasks = [],
-            done = this.async();
+        executeAsyncTaskForAllModules(svnUpModuleAndDownmerge, "Downmerge module: ", true);
+    });
 
-        settings["modules"].forEach(function(module) {
-            grunt.log.writeln("Downmerge module: " + module);
-            tasks.push(async.apply(svnUpModuleAndDownmerge, module));
-        });
-
-        if (settings["jasperserver-branch"]) {
-            grunt.log.writeln("Downmerge module: jasperserver");
-            tasks.push(async.apply(svnUpModuleAndDownmerge, "jasperserver"));
-        }
-        if (settings["jasperserver-pro-branch"]) {
-            grunt.log.writeln("Downmerge module: jasperserver-pro");
-            tasks.push(async.apply(svnUpModuleAndDownmerge, "jasperserver-pro"));
-        }
-
-        if (grunt.option("dry-run")) {
-            done();
-        } else if (grunt.option("parallel") === "false") {
-            async.series(tasks, done);
-        } else {
-            async.parallel(tasks, done);
-        }
+    grunt.registerTask('removecl', 'Remove all modules from downmerge changelists', function() {
+        executeAsyncTaskForAllModules(svnRemoveFromChangelist, "Remove all svn changelists from: ", true);
     });
 
     grunt.registerTask('default', 'Default task.', function() {
@@ -226,28 +207,7 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask('checkout-full', 'Checkout full selected repos', function() {
-        var tasks = [],
-            done = this.async();
-
-        settings["modules"].forEach(function(module) {
-            grunt.log.writeln("Checkout module: " + module);
-            tasks.push(async.apply(checkoutFull, module));
-        });
-
-        if (settings["jasperserver-branch"]) {
-            grunt.log.writeln("Checkout module: jasperserver");
-            tasks.push(async.apply(checkoutFull, "jasperserver"));
-        }
-        if (settings["jasperserver-pro-branch"]) {
-            grunt.log.writeln("Checkout module: jasperserver-pro");
-            tasks.push(async.apply(checkoutFull, "jasperserver-pro"));
-        }
-
-        if (grunt.option("dry-run")) {
-            done();
-        } else {
-            async.series(tasks, done);
-        }
+        executeAsyncTaskForAllModules(checkoutFull, "Checkout module: ", true);
     });
 
     grunt.registerTask('load-init-settings', 'Load settings and create config for initialization commands.', function(){
@@ -275,7 +235,38 @@ module.exports = function(grunt) {
         }
     });
 
+    function executeAsyncTaskForAllModules(taskFunc, logMessagePrefix, allowParallel) {
+        var tasks = [],
+            done = this.async();
+
+        settings["modules"].forEach(function(module) {
+            grunt.log.writeln(logMessagePrefix + module);
+            tasks.push(async.apply(taskFunc, module));
+        });
+
+        if (settings["jasperserver-branch"]) {
+            grunt.log.writeln(logMessagePrefix + "jasperserver");
+            tasks.push(async.apply(taskFunc, "jasperserver"));
+        }
+        if (settings["jasperserver-pro-branch"]) {
+            grunt.log.writeln(logMessagePrefix + "jasperserver-pro");
+            tasks.push(async.apply(taskFunc, "jasperserver-pro"));
+        }
+
+        if (grunt.option("dry-run")) {
+            done();
+        } else if (grunt.option("parallel") === "false" || !allowParallel) {
+            async.series(tasks, done);
+        } else {
+            async.parallel(tasks, done);
+        }
+    }
+
     function getSettingsBranchPath(module) {
+        if (getBranchName() === "trunk") {
+            return getTrunkBranchPath(module);
+        }
+
         if (module === "jasperserver") {
             return getRepoPath(module, "branches/" + settings["jasperserver-branch"]);
         }
@@ -284,6 +275,7 @@ module.exports = function(grunt) {
         }
         return getRepoPath(module, "branches/" + getBranchName());
     }
+
     function getTrunkBranchPath(module) {
         return getRepoPath(module, "trunk");
     }
@@ -302,7 +294,11 @@ module.exports = function(grunt) {
     }
 
     function getBranchName() {
-        return (settings["release-cycle"] ? settings["release-cycle"] + "-" : "") + settings["feature-name"];
+        if (settings["feature-name"] === "trunk") {
+            return "trunk";
+        } else {
+            return (settings["release-cycle"] ? settings["release-cycle"] + "-" : "") + settings["feature-name"];
+        }
     }
 
     function createBranch(module, callback) {
@@ -348,6 +344,18 @@ module.exports = function(grunt) {
             "changelist",
             "--recursive",
             changelist,
+            module
+        ], callback)
+    }
+
+    function svnRemoveFromChangelist(module, callback) {
+        execSvn([
+            "changelist",
+            "--remove",
+            "--changelist",
+            module, //name of changelist == name of the module
+            "--depth",
+            "infinity",
             module
         ], callback)
     }
