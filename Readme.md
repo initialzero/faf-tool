@@ -20,7 +20,6 @@
     - updates modules from repos
     - runs merge from trunk command for FAF modules and JRS
     - argument "--accept=<value>" accepts. Default "postpone".
-    - argment "--parallel=<true|false>" used for parallel/serial downmerge. Default "true"
     - argument "--separate-changelist=<true|false>" used to add module to it's own svn changelist. Default "true"
 
 
@@ -31,7 +30,7 @@
     - `--username=<username>` - svn username
     - `--password=<password>` - svn password
     - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
-    - `--parallel=<true|false>` - argument for parallel command execution, works for "downmerge" task. Default "true".
+    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
     - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
 
 ## How to use
@@ -80,14 +79,21 @@ Checkout selected modules and init it
 #### init
 Initialize selected modules: npm install && npm prune && grunt init
 
+#### update-init
+Update and initialize selected modules: svn up && npm install && npm prune && grunt init
+
 #### checkout-full
 Checking out faf modules and jrs if specified
 
 #### downmerge
 Runs svn up and svn merge from trunk command for FAF modules and JRS
 Accepts "--accept=<value>" svn argument. Default "postpone".
-Accepts "--parallel=<true|false>" svn argument. Default "true".
 Accepts "--separate-changelist=<true|false>" svn argument. Default "true".
+
+#### removecl
+removes all changelists which was created during downmerge task
+executed with --separate-changelist=true wich is set by default
+
 
 ## settings.json
 Remove unnecessary modules, set branch names for faf, ce and pro
@@ -98,7 +104,7 @@ Remove unnecessary modules, set branch names for faf, ce and pro
 
     // branch name parts
   "release-cycle": "<release name>", // optional parameter for features without release cycle like bugfix
-  "feature-name": "<feature name>",
+  "feature-name": "<feature name>", //name of the feature branch or "trunk"
 
     // optional JRS branches names used for checkout JRS
   "jasperserver-branch": "<existing jrs ce branch name>",
@@ -118,7 +124,6 @@ Remove unnecessary modules, set branch names for faf, ce and pro
     "bi-report",
     "bi-repository",
     "js-sdk",
-    "visualize-js",
     "jrs-ui",
     "jrs-ui-pro"
   ]

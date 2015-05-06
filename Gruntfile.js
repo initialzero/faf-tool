@@ -67,43 +67,11 @@ module.exports = function(grunt) {
     // Private tasks
 
     grunt.registerTask('create-branches', 'Creates svn branches for modules.', function() {
-        var tasks = [],
-            done = this.async();
-
-        settings["modules"].forEach(function(module) {
-            grunt.log.writeln("Create svn branch for " + module);
-            tasks.push(async.apply(createBranch, module));
-        });
-
-        if (grunt.option("dry-run")) {
-            done();
-        } else {
-            async.series(tasks, done);
-        }
+        executeAsyncTaskForAllModules.call(this, createBranch, "Create svn branch for: ", true, settings["modules"]);
     });
 
     grunt.registerTask('checkout-settings-files', 'Checkout bower.json and package.json for modules for updating it.', function() {
-        var tasks = [],
-            done = this.async();
-
-        settings["modules"].forEach(function(module) {
-            grunt.log.writeln("Checkout required files for " + module);
-            tasks.push(async.apply(checkoutSettingsFiles, module));
-        });
-        if (settings["jasperserver-branch"]) {
-            grunt.log.writeln("Checkout required files for jasperserver");
-            tasks.push(async.apply(checkoutSettingsFilesJrs));
-        }
-        if (settings["jasperserver-pro-branch"]) {
-            grunt.log.writeln("Checkout required files for jasperserver-pro");
-            tasks.push(async.apply(checkoutSettingsFilesJrsPro));
-        }
-
-        if (grunt.option("dry-run")) {
-            done();
-        } else {
-            async.series(tasks, done);
-        }
+        executeAsyncTaskForAllModules.call(this, checkoutSettingsFiles, "Checkout required files for: ", true);
     });
 
     grunt.registerTask('resolve-deps', 'Resolve bower dependencies.', function() {
@@ -181,28 +149,7 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('checkin-settings', 'Checking in updated settings files to repos.', function() {
-        var tasks = [],
-            done = this.async();
-
-        settings["modules"].forEach(function(module) {
-            grunt.log.writeln("Checking in updated settings files for " + module);
-            tasks.push(async.apply(checkinSettings, null, module));
-        });
-
-        // disable commits for JRS
-        /*
-        if (settings["jasperserver-branch"]) {
-            tasks.push(async.apply(checkinSettings, true, "jasperserver"));
-        }
-        if (settings["jasperserver-pro-branch"]) {
-            tasks.push(async.apply(checkinSettings, true, "jasperserver-pro"));
-        }*/
-
-        if (grunt.option("dry-run")) {
-            done();
-        } else {
-            async.series(tasks, done);
-        }
+        executeAsyncTaskForAllModules.call(this, checkinSettings, "Checking in updated settings files for: ", true, settings["modules"]);
     });
 
     grunt.registerTask('init', 'Setup FAF. Install npm modules, init grunt.', [
@@ -243,22 +190,31 @@ module.exports = function(grunt) {
         }
     });
 
-    function executeAsyncTaskForAllModules(taskFunc, logMessagePrefix, allowParallel) {
+    function executeAsyncTaskForAllModules(taskFunc, logMessagePrefix, allowParallel, modules) {
         var tasks = [],
             done = this.async();
 
-        settings["modules"].forEach(function(module) {
-            grunt.log.writeln(logMessagePrefix + module);
-            tasks.push(async.apply(taskFunc, module));
-        });
+        if (modules) {
+            //Execute only for specified modules
+            modules.forEach(function(module) {
+                grunt.log.writeln(logMessagePrefix + module);
+                tasks.push(async.apply(taskFunc, module));
+            });
+        } else {
+            //Execute for all modules
+            settings["modules"].forEach(function(module) {
+                grunt.log.writeln(logMessagePrefix + module);
+                tasks.push(async.apply(taskFunc, module));
+            });
 
-        if (settings["jasperserver-branch"]) {
-            grunt.log.writeln(logMessagePrefix + "jasperserver");
-            tasks.push(async.apply(taskFunc, "jasperserver"));
-        }
-        if (settings["jasperserver-pro-branch"]) {
-            grunt.log.writeln(logMessagePrefix + "jasperserver-pro");
-            tasks.push(async.apply(taskFunc, "jasperserver-pro"));
+            if (settings["jasperserver-branch"]) {
+                grunt.log.writeln(logMessagePrefix + "jasperserver");
+                tasks.push(async.apply(taskFunc, "jasperserver"));
+            }
+            if (settings["jasperserver-pro-branch"]) {
+                grunt.log.writeln(logMessagePrefix + "jasperserver-pro");
+                tasks.push(async.apply(taskFunc, "jasperserver-pro"));
+            }
         }
 
         if (grunt.option("dry-run")) {
@@ -381,6 +337,16 @@ module.exports = function(grunt) {
     }
 
     function checkoutSettingsFiles(module, callback) {
+        if (module === "jasperserver-pro") {
+            checkoutSettingsFilesJrsPro(module, callback);
+        } else if (module === "jasperserver") {
+            checkoutSettingsFilesJrs(module, callback);
+        } else {
+            checkoutSettingsFilesFAF(module, callback);
+        }
+    }
+
+    function checkoutSettingsFilesFAF(module, callback) {
         execSvn([
             "checkout",
             getSettingsBranchPath(module),
@@ -406,6 +372,7 @@ module.exports = function(grunt) {
             ], callback);
         });
     }
+
     function checkoutSettingsFilesJrsPro(callback) {
         execSvn([
             "checkout",
@@ -465,11 +432,17 @@ module.exports = function(grunt) {
         grunt.log.writeln(tab(3) + "install node modules, initialize node modules and grunt for each module, specified in settings.json");
         grunt.log.writeln(tab(2) + "\"init\":");
         grunt.log.writeln(tab(3) + "install node modules, initialize node modules and grunt for each module, specified in settings.json");
+        grunt.log.writeln(tab(2) + "\"update-init\":");
+        grunt.log.writeln(tab(3) + "update all modules from svn, install node modules,");
+        grunt.log.writeln(tab(3) + "initialize node modules and grunt for each module, specified in settings.json");
         grunt.log.writeln(tab(2) + "\"checkout-full\":");
         grunt.log.writeln(tab(3) + "checkout FAF modules and JRS");
         grunt.log.writeln(tab(2) + "\"downmerge\":");
-        grunt.log.writeln(tab(3) + "runs svn merge from trunk command for each FAF module, specified in settings.json and JRS if \"jasperserver-branch\" option specified");
+        grunt.log.writeln(tab(3) + "runs svn merge from trunk command for each FAF module,");
+        grunt.log.writeln(tab(3) + "specified in settings.json and JRS if \"jasperserver-branch\" option specified");
         grunt.log.writeln(tab(3) + "accepts one argument \"--accept=postpone\". Default \"postpone\".");
+        grunt.log.writeln(tab(2) + "\"removecl\":");
+        grunt.log.writeln(tab(3) + "removes all changelists which was created during downmerge task");
         grunt.log.writeln();
     }
 };
