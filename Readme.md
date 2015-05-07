@@ -1,116 +1,104 @@
-# FAF setup tool
+# FAF Tool
 
-- Create feature branches and do preparation routine work.
-    - creates feature branches
-    - checkouts bower.json, package.json
-    - updates bower dependencies and overlay versions
-    - commits changes (faf modules only)
-- Checkout and setup all FAF and JRS feature repositories by one command
-    - checkouts full repositories for selected modules
-    - runs commands:
-        - npm install
-        - npm prune
-        - grunt init
-- Initialize FAF modules
-    - runs commands:
-        - npm install
-        - npm prune
-        - grunt init
-- Downmerge project
-    - updates modules from repos
-    - runs merge from trunk command for FAF modules and JRS
-    - argument "--accept=<value>" accepts. Default "postpone".
-    - argument "--separate-changelist=<true|false>" used to add module to it's own svn changelist. Default "true"
+Command line utility which helps in setting up faf project
 
+## Table of Contents
 
-- Options
-    - `--dry-run=true`
-    - `--verbose`
-    - `--no-time` - hide time report
-    - `--username=<username>` - svn username
-    - `--password=<password>` - svn password
-    - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
-    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
-    - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
+  1. [Install](#install)
+  1. [Usage](#usage)
+  1. [Settings File](#settings-file.json)
 
-## How to use
+## Install
 
 ```
 npm install -g faf-tool
+```
 
-// go to folder where you want to setup FAF branches
+## Usage
 
-// create settings.json here or
-// run 'faf-tool' without arguments. It will create settings.json.example here. Rename it to settings.json
+### Setup Project Localy
 
-// update settings.json
+#### Get settings.json from some location
 
-// At first try to --dry-run !!!
+```
+mkdir diamond-feature
+wget http://someplace/blabla/settings.json
+```
 
-// create new feature branches and setup it
-faf-tool create-feature
+Settings file would be like 
 
-// or just checkout necessary branches and init it
+```
+cat settings.json
+{
+  "svn-server": "svnserver.jaspersoft.com",
+  "feature-name": "diamond-feature",
+  "jasperserver-branch": "diamond-ce-feature",
+  "jasperserver-pro-branch": "diamond-pro-feature",
+  "jasperserver-ci-path": "/path/to/my/jrs/ce/sources",
+  "jasperserver-pro-ci-path": "/path/to/my/jrs/pro/sources",
+  "modules": [
+    "bi-charts",
+    "bi-dashboard",
+    "bi-report",
+    "bi-repository",
+    "js-sdk",
+    "jrs-ui",
+    "jrs-ui-pro"
+  ]
+}
+```
+
+#### Prepare local project to work
+
+```
 faf-tool setup
 ```
 
-## Commands
+**[⬆ back to top](#table-of-contents)**
 
-command options can be used in these ways:
+### Create Project's Environemnt
+
+#### Create settings.json file
+
+```
+faf-tool
+mv settings.json.example settings.json
+```
+
+#### Create and prepare modules for commit
+
+> At first try to --dry-run !!!
 ```
 faf-tool create-feature --dry-run
-faf-tool create-feature --dry-run=true --no-time
-faf-tool create-feature --verbose=true --dry-run=true
 ```
-
-#### create-feature
+If everithing is fine then run
 
 ```
-"create-branches", // create new branches from trunk for all faf modules specified in settings.json
-"checkout-settings-files", // checkout branches
-"resolve-deps", // resolve bower dependencies in bower.json
-"update-overlay-versions", // update overlay versions in jrs-ui, jrs-ui-pro and JRS poms
-"checkin-settings", // commit resolved dependencies
+faf-tool create-feature
 ```
-
-#### setup
-Checkout selected modules and init it
-
-#### init
-Initialize selected modules: npm install && npm prune && grunt init
-
-#### update-init
-Update and initialize selected modules: svn up && npm install && npm prune && grunt init
-
-#### checkout-full
-Checking out faf modules and jrs if specified
-
-#### downmerge
-Runs svn up and svn merge from trunk command for FAF modules and JRS
-Accepts "--accept=<value>" svn argument. Default "postpone".
-Accepts "--separate-changelist=<true|false>" svn argument. Default "true".
-
-#### removecl
-removes all changelists which was created during downmerge task
-executed with --separate-changelist=true wich is set by default
+**[⬆ back to top](#table-of-contents)**
 
 
-## settings.json
-Remove unnecessary modules, set branch names for faf, ce and pro
+## Settings File
+
 ```
 {
-    // by default it uses "https://" protocol but you can specify protocol in this property like "svn+ssh://falcon.jaspersoft.com"
+  // by default it uses "https://" protocol
   "svn-server": "svnserver.jaspersoft.com",
+  
+  // branch name parts
+  //name of the feature branch or "trunk"
+  "feature-name": "<feature name>", 
+  
+  // optional parameter for features without release cycle like bugfix
+  "release-cycle": "<release name>", 
+  
 
-    // branch name parts
-  "release-cycle": "<release name>", // optional parameter for features without release cycle like bugfix
-  "feature-name": "<feature name>", //name of the feature branch or "trunk"
-
-    // optional JRS branches names used for checkout JRS
+  // optional JRS branches names used for checkout JRS
   "jasperserver-branch": "<existing jrs ce branch name>",
   "jasperserver-pro-branch": "<existing jrs pro branch name>",
 
-    // optional JRS location (if already checked out) - used to update faf overlays version in jasperserver-war/pom.xml (requires manual commit)
+  // optional JRS location 
   "jasperserver-ci-path": "<path to ci jrs>",
   "jasperserver-pro-ci-path": "<path to ci jrs-pro>",
 
@@ -127,79 +115,32 @@ Remove unnecessary modules, set branch names for faf, ce and pro
     "jrs-ui",
     "jrs-ui-pro"
   ]
-
 }
 ```
+**[⬆ back to top](#table-of-contents)**
 
-## sample output
+## CLI Options
 
-```
-λ faf-tool create-feature
-Running "create-branches" task
+ - `--dry-run=true`
+    - `--verbose`
+    - `--no-time` - hide time report
+    - `--username=<username>` - svn username
+    - `--password=<password>` - svn password
+    - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
+    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
+    - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
 
-...
-Done, without errors.
-
-
-Execution Time (2015-01-19 14:13:05 UTC)
-create-branches           9.8s  ■■■■■■■■■■■■ 18%
-checkout-settings-files  39.8s  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 72%
-checkin-settings            6s  ■■■■■■■■ 11%
-Total 55.7s
-```
-
-#### `--dry-run` option:
-
-```
-λ faf-tool create-feature --dry-run
-Running "create-branches" task
-Create svn branch for bi-control
-Create svn branch for bi-dashboard
-Create svn branch for bi-report
-Create svn branch for bi-repository
-Create svn branch for js-sdk
-Create svn branch for visualize-js
-Create svn branch for jrs-ui
-Create svn branch for jrs-ui-pro
-
-Running "checkout-settings-files" task
-Checkout required files for bi-control
-Checkout required files for bi-dashboard
-Checkout required files for bi-report
-Checkout required files for bi-repository
-Checkout required files for js-sdk
-Checkout required files for visualize-js
-Checkout required files for jrs-ui
-Checkout required files for jrs-ui-pro
-Checkout required files for jasperserver
-Checkout required files for jasperserver-pro
-
-Running "resolve-deps" task
-
-Running "update-overlay-versions" task
-
-Running "checkin-settings" task
-Checking in updated settings files for bi-control
-Checking in updated settings files for bi-dashboard
-Checking in updated settings files for bi-report
-Checking in updated settings files for bi-repository
-Checking in updated settings files for js-sdk
-Checking in updated settings files for visualize-js
-Checking in updated settings files for jrs-ui
-Checking in updated settings files for jrs-ui-pro
+**[⬆ back to top](#table-of-contents)**
 
 
-Done, without errors.
+## Examples
 
-
-Execution Time (2015-01-26 08:08:49 UTC)
-loading tasks             3ms  ■■■■■■ 4%
-create-branches          13ms  ■■■■■■■■■■■■■■■■■■■■■■■■■■ 17%
-checkout-settings-files  15ms  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 20%
-resolve-deps              5ms  ■■■■■■■■■■ 7%
-update-overlay-versions   1ms  ■■ 1%
-checkin-settings         11ms  ■■■■■■■■■■■■■■■■■■■■■■ 15%
-
-Total 75ms
+Control verbosity level
 
 ```
+faf-tool create-feature --dry-run
+faf-tool create-feature --dry-run=true --no-time
+faf-tool create-feature --verbose=true --dry-run=true
+```
+
+**[⬆ back to top](#table-of-contents)**
