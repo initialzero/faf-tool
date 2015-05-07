@@ -1,7 +1,8 @@
 module.exports = function(grunt) {
     var settings,
         async = require("async"),
-        cwd = grunt.option("cwd") || ".";
+        cwd = grunt.option("cwd") || ".",
+        ftwd = grunt.option("ftwd");
 
     require('load-grunt-tasks')(grunt);
     !grunt.option("no-time") && require('time-grunt')(grunt);
@@ -12,7 +13,7 @@ module.exports = function(grunt) {
         settings = grunt.file.readJSON('settings.json');
     } catch (e) {
         writeHelp();
-        grunt.file.copy("settings.json.example", cwd + "/settings.json.example");
+        grunt.file.copy(ftwd + "/settings.json.example", cwd + "/settings.json.example");
         grunt.fatal(e.message + "\r\nUse settings.json.example to create settings.json");
     }
 

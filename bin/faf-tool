@@ -15,6 +15,11 @@ if (!grunt.cli.options.cwd) {
     grunt.cli.options.cwd = process.cwd();
 }
 
+//Save faf-tool plugin working directory
+if (!grunt.cli.options.ftwd) {
+    grunt.cli.options.ftwd = asset('.');
+}
+
 //switch base path to faf-tool plugin's path
 //so no need to have Gruntfile.js in user's directory
 grunt.file.setBase(asset('.'));
