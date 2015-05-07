@@ -22,10 +22,11 @@ npm install -g faf-tool
 
 ```
 mkdir diamond-feature
+cd diamond-feature
 wget http://someplace/blabla/settings.json
 ```
 
-Settings file would be like 
+Edit settings file, for example
 
 ```
 cat settings.json
