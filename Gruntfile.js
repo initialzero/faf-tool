@@ -22,9 +22,9 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         clean: settings.modules.concat(["jasperserver", "jasperserver-pro"]),
-        shell: {
+        run: {
             mock: {
-                command: ""
+                cmd: ""
             }
         }
     });
@@ -155,7 +155,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('init', 'Setup FAF. Install npm modules, init grunt.', [
         "load-init-settings",
-        "shell"
+        "run-wait"
     ]);
 
     grunt.registerTask('checkout-full', 'Checkout full selected repos', function() {
@@ -166,18 +166,37 @@ module.exports = function(grunt) {
         executeAsyncTaskForAllModules.call(this, svnUpModule, "Update module: ", true);
     });
 
+    grunt.registerTask('run-wait', 'run-wait', function() {
+        settings["modules"].forEach(function(task) {
+            grunt.task.run("run:" + task);
+        });
+
+        if (grunt.option("parallel") !== false) {
+            //only wait for tasks to complete in parallel build
+            settings["modules"].forEach(function(task) {
+                grunt.task.run("wait:" + task);
+            });
+        }
+    });
+
+
     grunt.registerTask('load-init-settings', 'Load settings and create config for initialization commands.', function(){
 
         grunt.log.writeln("Load settings and create config for initialization commands.");
 
-        var shell_config = {};
+        var run_config = {
+            options: {
+                wait: grunt.option("parallel") === false,
+                quiet: false,
+                failOnError: false
+            }
+        };
+
         settings["modules"].forEach(function(module) {
-            shell_config[module] = {
-                command: "npm install && npm prune && grunt init",
+            run_config[module] = {
+                exec: "npm install && npm prune && grunt init --config.storage.packages=./.cache/bower/packages",
                 options: {
-                    execOptions: {
-                        cwd: "./" + module
-                    }
+                    cwd: "./" + module
                 }
             };
         });
@@ -185,11 +204,12 @@ module.exports = function(grunt) {
         grunt.log.ok("Settings loaded");
 
         if (grunt.option("dry-run")) {
-            grunt.log.writeln(JSON.stringify(shell_config, null, 2));
+            grunt.log.writeln(JSON.stringify(run_config, null, 2));
         } else {
-            grunt.config.set("shell", shell_config);
+            grunt.config.set("run", run_config);
         }
     });
+
 
     function executeAsyncTaskForAllModules(taskFunc, logMessagePrefix, allowParallel, modules) {
         var tasks = [],
@@ -220,7 +240,7 @@ module.exports = function(grunt) {
 
         if (grunt.option("dry-run")) {
             done();
-        } else if (grunt.option("parallel") === "false" || !allowParallel) {
+        } else if (grunt.option("parallel") === false || !allowParallel) {
             async.series(tasks, done);
         } else {
             async.parallel(tasks, done);

@@ -30,7 +30,7 @@
     - `--username=<username>` - svn username
     - `--password=<password>` - svn password
     - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
-    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
+    - `--parallel=<true|false>` - argument for parallel command execution, works for all tasks which could run in parallel. Default "true".
     - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
 
 ## How to use
