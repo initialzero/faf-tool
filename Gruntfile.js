@@ -20,8 +20,46 @@ module.exports = function(grunt) {
     var username = grunt.option("username") || settings["username"];
     var password = grunt.option("password") || settings["password"];
 
+    var Modules = function(settings) {
+        this.modules = settings.modules;
+    };
+    Modules.prototype.getList = function() {
+        return Object.keys(this.modules);
+    };
+    Modules.prototype.forEach = function(fn) {
+        this.getList().forEach(fn);
+    };
+    Modules.prototype.contain = function(module) {
+        return this.getList().hasOwnProperty(module);
+    };
+
+    Modules.prototype.getCeOverlayVersion = function() {
+        if (this.modules["jrs-ui"]["feature-name"]) {
+            return this.modules["jrs-ui"]["feature-name"] + "-SNAPSHOT";
+        }
+        if (settings["feature-name"]) {
+            return settings["feature-name"] + "-SNAPSHOT";
+        }
+    };
+    Modules.prototype.getProOverlayVersion = function() {
+        if (this.modules["jrs-ui-pro"]["feature-name"]) {
+            return this.modules["jrs-ui-pro"]["feature-name"] + "-SNAPSHOT";
+        }
+        if (settings["feature-name"]) {
+            return settings["feature-name"] + "-SNAPSHOT";
+        }
+    };
+    Modules.prototype.getSourcePath = function(module) {
+        if (this.modules[module]["path"]) {
+            return this.modules[module]["path"];
+        }
+        return settings["faf-source-repo-path"] || "trunk";
+    };
+
+    var modules = new Modules(settings);
+
     grunt.initConfig({
-        clean: settings.modules.concat(["jasperserver", "jasperserver-pro"]),
+        clean: modules.getList().concat(["jasperserver", "jasperserver-pro"]),
         run: {
             mock: {
                 cmd: ""
@@ -68,7 +106,7 @@ module.exports = function(grunt) {
     // Private tasks
 
     grunt.registerTask('create-branches', 'Creates svn branches for modules.', function() {
-        executeAsyncTaskForAllModules.call(this, createBranch, "Create svn branch for: ", true, settings["modules"]);
+        executeAsyncTaskForAllModules.call(this, createBranch, "Create svn branch for: ", true, modules.getList());
     });
 
     grunt.registerTask('checkout-settings-files', 'Checkout bower.json and package.json for modules for updating it.', function() {
@@ -76,7 +114,7 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('resolve-deps', 'Resolve bower dependencies.', function() {
-        settings["modules"].forEach(function(module) {
+        modules.forEach(function(module) {
             var bowerConfPath = module + "/bower.json",
                 branchName = getBranchName();
 
@@ -91,7 +129,7 @@ module.exports = function(grunt) {
 
             for (var depName in bowerConfig.dependencies) {
                 if (!bowerConfig.dependencies.hasOwnProperty(depName)) continue;
-                if (settings["modules"].indexOf(depName) !== -1) {
+                if (modules.contain(depName)) {
                     bowerConfig.dependencies[depName] = bowerConfig.dependencies[depName].replace(/#(.+)$/, "#" + branchName);
                     bowerConfig.resolutions[depName] = branchName;
                     grunt.verbose.writeln(depName + "#" + branchName);
@@ -111,13 +149,12 @@ module.exports = function(grunt) {
             return;
         }
 
-        if (settings.modules.indexOf("jrs-ui") !== -1) {
+        if (modules.contain("jrs-ui")) {
             grunt.verbose.writeln("Update jrs-ui overlay version");
             fileContent = grunt.file.readJSON("jrs-ui/package.json");
-            ceOverlayVersion = settings["feature-name"] + "-SNAPSHOT";
-            settings["jrs-ui-overlayVersion"] = fileContent.overlayVersion = ceOverlayVersion;
+            //ceOverlayVersion = settings["feature-name"] + "-SNAPSHOT";
+            fileContent.overlayVersion = ceOverlayVersion = modules.getCeOverlayVersion();
             grunt.file.write("jrs-ui/package.json", JSON.stringify(fileContent, null, "  "));
-            grunt.file.write("settings.json", JSON.stringify(settings, null, "  "));
 
             if (settings["jasperserver-branch"] || settings["jasperserver-ci-path"]) {
                 grunt.verbose.writeln("Update jrs-ui overlay version in jasperserver");
@@ -128,13 +165,11 @@ module.exports = function(grunt) {
             }
         }
 
-        if (settings.modules.indexOf("jrs-ui-pro") !== -1) {
+        if (modules.contain("jrs-ui-pro")) {
             grunt.verbose.writeln("Update jrs-ui-pro overlay version");
             fileContent = grunt.file.readJSON("jrs-ui-pro/package.json");
-            proOverlayVersion = settings["feature-name"] + "-SNAPSHOT";
-            settings["jrs-ui-pro-overlayVersion"] = fileContent.overlayVersion = proOverlayVersion;
+            fileContent.overlayVersion = proOverlayVersion = modules.getProOverlayVersion();
             grunt.file.write("jrs-ui-pro/package.json", JSON.stringify(fileContent, null, "  "));
-            grunt.file.write("settings.json", JSON.stringify(settings, null, "  "));
 
             if (settings["jasperserver-pro-branch"] || settings["jasperserver-pro-ci-path"]) {
                 grunt.verbose.writeln("Update jrs-ui-pro overlay version in jasperserver-pro");
@@ -150,7 +185,7 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('checkin-settings', 'Checking in updated settings files to repos.', function() {
-        executeAsyncTaskForAllModules.call(this, checkinSettings, "Checking in updated settings files for: ", true, settings["modules"]);
+        executeAsyncTaskForAllModules.call(this, checkinSettings, "Checking in updated settings files for: ", true, modules.getList());
     });
 
     grunt.registerTask('init', 'Setup FAF. Install npm modules, init grunt.', [
@@ -167,13 +202,13 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('run-wait', 'run-wait', function() {
-        settings["modules"].forEach(function(task) {
+        modules.forEach(function(task) {
             grunt.task.run("run:" + task);
         });
 
         if (grunt.option("parallel") !== false) {
             //only wait for tasks to complete in parallel build
-            settings["modules"].forEach(function(task) {
+            modules.forEach(function(task) {
                 grunt.task.run("wait:" + task);
             });
         }
@@ -192,7 +227,7 @@ module.exports = function(grunt) {
             }
         };
 
-        settings["modules"].forEach(function(module) {
+        modules.forEach(function(module) {
             run_config[module] = {
                 exec: "npm install && npm prune && grunt init --config.storage.packages=./.cache/bower/packages",
                 options: {
@@ -211,19 +246,19 @@ module.exports = function(grunt) {
     });
 
 
-    function executeAsyncTaskForAllModules(taskFunc, logMessagePrefix, allowParallel, modules) {
+    function executeAsyncTaskForAllModules(taskFunc, logMessagePrefix, allowParallel, currentModules) {
         var tasks = [],
             done = this.async();
 
-        if (modules) {
+        if (currentModules) {
             //Execute only for specified modules
-            modules.forEach(function(module) {
+            currentModules.forEach(function(module) {
                 grunt.log.writeln(logMessagePrefix + module);
                 tasks.push(async.apply(taskFunc, module));
             });
         } else {
             //Execute for all modules
-            settings["modules"].forEach(function(module) {
+            modules.forEach(function(module) {
                 grunt.log.writeln(logMessagePrefix + module);
                 tasks.push(async.apply(taskFunc, module));
             });
@@ -247,7 +282,7 @@ module.exports = function(grunt) {
         }
     }
 
-    function getSettingsBranchPath(module) {
+    function getTargetUrl(module) {
         if (getBranchName() === "trunk") {
             return getTrunkBranchPath(module);
         }
@@ -263,6 +298,9 @@ module.exports = function(grunt) {
 
     function getTrunkBranchPath(module) {
         return getRepoPath(module, "trunk");
+    }
+    function getSourceUrl(module) {
+        return getRepoPath(module, modules.getSourcePath(module));
     }
 
     function getRepoPath(module, path) {
@@ -289,8 +327,8 @@ module.exports = function(grunt) {
     function createBranch(module, callback) {
         var args = [
             "copy",
-            getTrunkBranchPath(module),
-            getSettingsBranchPath(module),
+            getSourceUrl(module),
+            getTargetUrl(module),
             "-m",
             "Created a feature branch from Jenkins with name: " + getBranchName()
         ];
@@ -302,7 +340,7 @@ module.exports = function(grunt) {
     function checkoutFull(module, callback) {
         execSvn([
             "checkout",
-            getSettingsBranchPath(module),
+            getTargetUrl(module),
             module
         ], callback);
     }
@@ -370,7 +408,7 @@ module.exports = function(grunt) {
     function checkoutSettingsFilesFAF(module, callback) {
         execSvn([
             "checkout",
-            getSettingsBranchPath(module),
+            getTargetUrl(module),
             module,
             "--depth",
             "files"
@@ -411,12 +449,12 @@ module.exports = function(grunt) {
         });
     }
 
-    function checkinSettings(jrs, module, callback) {
+    function checkinSettings(module, callback) {
         var args = [
             "commit",
             module,
             "-m",
-            jrs ? "Resolved bower dependencies and updated overlay version" : "Updated overlay version"
+            ["jasperserver", "jasperserver-pro"].indexOf(module) !== -1 ? "Resolved bower dependencies and updated overlay version" : "Updated overlay version"
         ];
         username && args.push("--username=" + username);
         password && args.push("--password=" + password);

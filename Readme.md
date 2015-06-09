@@ -106,6 +106,9 @@ Remove unnecessary modules, set branch names for faf, ce and pro
   "release-cycle": "<release name>", // optional parameter for features without release cycle like bugfix
   "feature-name": "<feature name>", //name of the feature branch or "trunk"
 
+  // optional source path for faf modules. Uses "trunk" if not specified.
+  "faf-source-repo-path": "<path-to-svn-repo>",
+
     // optional JRS branches names used for checkout JRS
   "jasperserver-branch": "<existing jrs ce branch name>",
   "jasperserver-pro-branch": "<existing jrs pro branch name>",
@@ -118,15 +121,18 @@ Remove unnecessary modules, set branch names for faf, ce and pro
   "username": "username",
   "password":"password",
 
-  "modules": [
-    "bi-charts",
-    "bi-dashboard",
-    "bi-report",
-    "bi-repository",
-    "js-sdk",
-    "jrs-ui",
-    "jrs-ui-pro"
-  ]
+  "modules": {
+    "bi-charts": {
+      // optional property which replace global settings "faf-source-repo-path" for current module
+      "source-repo-path": "<path-to-svn-repo>"
+    },
+    "bi-dashboard": {},
+    "bi-report": {},
+    "bi-repository": {},
+    "js-sdk": {},
+    "jrs-ui": {},
+    "jrs-ui-pro": {}
+  }
 
 }
 ```

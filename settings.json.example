@@ -4,6 +4,8 @@
   "release-cycle": "test-release-name",
   "feature-name": "test-feature-name",
 
+  "faf-source-repo-path": "trunk",
+
   "jasperserver-branch": "<existed jrs ce branch name>",
   "jasperserver-pro-branch": "<existed jrs pro branch name>",
 
@@ -11,18 +13,15 @@
   "jasperserver-pro-ci-path": "<path to ci jrs-pro>",
 
 
-  "modules": [
-    "bi-adhoc",
-    "bi-charts",
-    "bi-control",
-    "bi-dashboard",
-    "bi-report",
-    "bi-repository",
+  "modules": {
+    "bi-control": {},
+    "bi-dashboard": {},
+    "bi-report": {},
+    "bi-repository": {},
 
-    "js-sdk",
-    "visualize-js",
-    "jrs-ui",
-    "jrs-ui-pro"
-  ]
+    "js-sdk": {},
+    "jrs-ui": {},
+    "jrs-ui-pro": {}
+  }
 
 }
