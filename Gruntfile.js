@@ -50,10 +50,7 @@ module.exports = function(grunt) {
         }
     };
     Modules.prototype.getSourcePath = function(module) {
-        if (this.modules[module]["path"]) {
-            return this.modules[module]["path"];
-        }
-        return settings["faf-source-repo-path"] || "trunk";
+        return this.modules[module]["source-repo-path"] || settings["faf-source-repo-path"] || "trunk";
     };
 
     var modules = new Modules(settings);
