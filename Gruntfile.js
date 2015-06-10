@@ -412,7 +412,7 @@ module.exports = function(grunt) {
         ], callback);
     }
 
-    function checkoutSettingsFilesJrs(callback) {
+    function checkoutSettingsFilesJrs(module, callback) {
         execSvn([
             "checkout",
             getRepoPath("jasperserver", "branches/" + settings["jasperserver-branch"]),
@@ -429,7 +429,7 @@ module.exports = function(grunt) {
         });
     }
 
-    function checkoutSettingsFilesJrsPro(callback) {
+    function checkoutSettingsFilesJrsPro(module, callback) {
         execSvn([
             "checkout",
             getRepoPath("jasperserver-pro", "branches/" + settings["jasperserver-pro-branch"]),
