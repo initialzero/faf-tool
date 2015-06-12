@@ -1,0 +1,11 @@
+[
+    "js-sdk",
+
+    "bi-control",
+    "bi-repository",
+    "bi-report",
+    "bi-dashboard",
+
+    "jrs-ui",
+    "jrs-ui-pro"
+  ]

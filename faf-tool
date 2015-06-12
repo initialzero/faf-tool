@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+'use strict';
+
+// Nodejs libs.
+var path = require('path');
+var program = require('commander');
+var inquirer = require("inquirer");
+var util = require("./util");
+var faf = require("./faf/faf");
+var tasks = require("./tasks");
+
+// Get the path to an asset, relative to this module's root directory.
+var asset = path.resolve.bind(null, __dirname, '.');
+var cwd = process.cwd();
+//Save faf-tool plugin working directory
+var ftwd = asset('.');
+process.chdir(cwd);
+// pass directories to util
+util.init({
+    cwd: cwd,
+    ftwd: ftwd
+});
+
+var cmdValue;
+
+
+program
+    .arguments('<cmd>')
+    .version('0.0.2')
+    .option('-v, --verbose', 'Increase verbosiry')
+    .action(function (cmd) {
+        cmdValue = cmd;
+    });
+
+program.parse(process.argv);
+
+util.set("verbose", program.verbose);
+
+tasks.run([cmdValue]);
+
+
+//if (!program.args.length) program.help();
