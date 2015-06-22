@@ -72,9 +72,9 @@ module.exports = function(grunt) {
             deployment = jrsUiPro.concat(deployment);
         }
 
-        deployment = [__dirname].concat(deployment)
+        deployment = [''].concat(deployment)
                         .map(function(module){
-                            return path.join(module, '.workspace')
+                            return path.join(cwd, module, '.workspace')
                         })
                         .filter(function (module){
                             return fs.existsSync(module);
