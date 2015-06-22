@@ -1,3 +1,6 @@
+var path = require('path'),
+    fs = require('fs');
+
 module.exports = function(grunt) {
     var settings,
         async = require("async"),
@@ -55,13 +58,83 @@ module.exports = function(grunt) {
 
     var modules = new Modules(settings);
 
+
+    function findLocalDeploymentPath(modules){
+
+
+        var deployment = modules.slice(),
+            jrsUiPro = deployment.indexOf('jrs-ui-pro');
+
+        if (jrsUiPro !== -1){
+            //push 'jrs-ui-pro' on top, it's next after faf-tool root folder to
+            //search for '.workspaces' 
+            jrsUiPro = deployment.splice(jrsUiPro, 1);
+            deployment = jrsUiPro.concat(deployment);
+        }
+
+        deployment = [__dirname].concat(deployment)
+                        .map(function(module){
+                            return path.join(module, '.workspace')
+                        })
+                        .filter(function (module){
+                            return fs.existsSync(module);
+                        }, '')
+                        .map(function(file){
+                            return grunt.file.readJSON(file).server
+                        })
+                        .filter(function(server){
+                            return server;
+                        });
+
+        //use first settings from the stack, 
+        //by default it's root of your project
+        deployment = deployment.length > 0 ? deployment[0] : '';
+
+        if (!fs.existsSync(deployment)){
+            grunt.log.write('Deployment target doesn\'t exist: '+ deployment);
+        }
+
+        return deployment;
+    }
+
+    function generateWatchPaths(modules){
+        return modules.map(function(module){
+                        return [
+                            path.join(module, '/src/**'), 
+                            "!" + path.join(module, 'src/bower_components/**')
+                        ]
+                    }).reduce(function(memo,pair){
+                        return memo.concat(pair);
+                    });
+    }
+
     grunt.initConfig({
+
+        deployment: findLocalDeploymentPath(settings.modules),
+
         clean: modules.getList().concat(["jasperserver", "jasperserver-pro"]),
         run: {
             mock: {
                 cmd: ""
             }
+        },
+        watch: {
+            src: {
+                files: generateWatchPaths(settings.modules),
+                tasks: ['copy']
+            },
+            options: {
+                nospawn: true
+            }
+        },
+        copy: {
+            main: {
+                src: ['src'], 
+                //it doesn't mater, we replace it in listener for 'wait' event
+                dest: 'balalalal'
+            }
         }
+
     });
 
 
@@ -99,6 +172,35 @@ module.exports = function(grunt) {
         writeHelp();
     });
 
+    grunt.event.on('watch', function(action, filepath) {
+
+        var parts = filepath.split("src"),
+            log = grunt.log.writeln,
+            deploy = grunt.config.get(['deployment']);
+
+        if (deploy){
+            if (parts.length >= 2){
+                var projectPath = parts[0],
+                    dest = deploy;
+                    extention = path.extname(filepath);
+
+                //choose proper dest for different types of assets
+                if (".js" == extention || ".htm" == extention){   
+                    if (projectPath !== 'jrs-ui-pro'){
+                        dest = path.join(dest, "scripts/",'bower_components/');
+                    }
+                }
+
+                grunt.config(['copy', 'main', 'src'], [filepath]);
+                grunt.config(['copy', 'main', 'dest'], dest);
+
+                log('Coping file to : ', path.join(dest,filepath));
+            }
+        }else{
+            grunt.log.error('Can\'t find deployment path. Did you create .workspace ?');
+        }
+       
+    });
 
     // Private tasks
 
