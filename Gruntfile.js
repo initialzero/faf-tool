@@ -126,14 +126,15 @@ module.exports = function(grunt) {
             options: {
                 nospawn: true
             }
-        },
-        copy: {
-            main: {
-                src: ['src'], 
-                //it doesn't mater, we replace it in listener for 'wait' event
-                dest: 'balalalal'
-            }
         }
+        // ,
+        // copy: {
+        //     main: {
+        //         src: ['src'], 
+        //         //it doesn't mater, we replace it in listener for 'wait' event
+        //         dest: 'balalalal'
+        //     }
+        // }
 
     });
 
@@ -176,23 +177,43 @@ module.exports = function(grunt) {
 
         var parts = filepath.split("src"),
             log = grunt.log.writeln,
-            deploy = grunt.config.get(['deployment']);
+            deploy = grunt.config.get(['deployment']),
+            config = {
+                 copy: {
+                     main: {
+                         expand : false,
+                         cwd : '' 
+                    }
+                }
+            };
 
         if (deploy){
+
             if (parts.length >= 2){
                 var projectPath = parts[0],
                     dest = deploy;
                     extention = path.extname(filepath);
 
                 //choose proper dest for different types of assets
-                if (".js" == extention || ".htm" == extention){   
-                    if (projectPath !== 'jrs-ui-pro'){
-                        dest = path.join(dest, "scripts/",'bower_components/');
+                if (".js" == extention || ".htm" == extention){  
+                    dest = path.join(dest, "scripts/");  
+                    if (projectPath.indexOf('jrs-ui-pro') == -1){
+                        //all packages except jrs-ui-pro
+                        dest = path.join(dest,'bower_components/');
+                    }else{
+                        var cwdSrc = 'jrs-ui-pro/src';
+
+                        config.copy.main.cwd = path.join(cwd, cwdSrc);
+                        config.copy.main.expand = true; 
+
+                        filepath = path.relative(cwdSrc, filepath);
                     }
                 }
 
-                grunt.config(['copy', 'main', 'src'], [filepath]);
-                grunt.config(['copy', 'main', 'dest'], dest);
+                config.copy.main.src = [filepath];
+                config.copy.main.dest = dest;
+
+                grunt.config.merge(config);
 
                 log('Coping file to : ', path.join(dest,filepath));
             }
