@@ -1,6 +1,6 @@
 {
   "name": "faf-tool",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Tool for maintain FAF modules",
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-copy": "~0.5.0",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-ftp-push": "^0.3.4",
     "grunt-run": "0.3.0",
     "load-grunt-tasks": "~0.6.0",
     "time-grunt": "~0.3.2",

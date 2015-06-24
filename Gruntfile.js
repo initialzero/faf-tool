@@ -97,11 +97,23 @@ module.exports = function(grunt) {
         return deployment;
     }
 
-    function generateWatchPaths(modules){
+    function srcPathes(modules){
         return modules.map(function(module){
                         return [
                             path.join(module, '/src/**'), 
                             "!" + path.join(module, 'src/bower_components/**')
+                        ]
+                    }).reduce(function(memo,pair){
+                        return memo.concat(pair);
+                    });
+    }
+
+    function themesPathes(modules){
+
+
+        return modules.map(function(module){
+                        return [
+                            path.join(module, '/themes/**')
                         ]
                     }).reduce(function(memo,pair){
                         return memo.concat(pair);
@@ -119,22 +131,39 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            src: {
-                files: generateWatchPaths(settings.modules),
-                tasks: ['copy']
+            scripts: {
+                files: srcPathes(settings.modules),
+                tasks: ['copy'],
+                options: {
+                    nospawn: true
+                }
             },
-            options: {
-                nospawn: true
+            themes: {
+                files: themesPathes(settings.modules),
+                tasks: ['ftp_push'],
+                options: {
+                    nospawn: true
+                }
+            }
+        },
+        ftp_push: {
+            themes: {
+                options: {
+                    username: 'designer',
+                    password: 'designer',
+                    host: 'localhost',
+                    dest: '/themes',
+                    port: 2121
+                },
+                files: [{
+                    expand: true,
+                    cwd: 'themes',
+                    src: [
+                        'default/samples.css'
+                    ]
+                }]
             }
         }
-        // ,
-        // copy: {
-        //     main: {
-        //         src: ['src'], 
-        //         //it doesn't mater, we replace it in listener for 'wait' event
-        //         dest: 'balalalal'
-        //     }
-        // }
 
     });
 
@@ -175,52 +204,70 @@ module.exports = function(grunt) {
 
     grunt.event.on('watch', function(action, filepath) {
 
-        var parts = filepath.split("src"),
-            log = grunt.log.writeln,
-            deploy = grunt.config.get(['deployment']),
-            config = {
-                 copy: {
-                     main: {
-                         expand : false,
-                         cwd : '' 
-                    }
-                }
-            };
-
-        if (deploy){
-
-            if (parts.length >= 2){
-                var projectPath = parts[0],
-                    dest = deploy;
-                    extention = path.extname(filepath);
-
-                //choose proper dest for different types of assets
-                if (".js" == extention || ".htm" == extention){  
-                    dest = path.join(dest, "scripts/");  
-                    if (projectPath.indexOf('jrs-ui-pro') == -1){
-                        //all packages except jrs-ui-pro
-                        dest = path.join(dest,'bower_components/');
-                    }else{
-                        var cwdSrc = 'jrs-ui-pro/src';
-
-                        config.copy.main.cwd = path.join(cwd, cwdSrc);
-                        config.copy.main.expand = true; 
-
-                        filepath = path.relative(cwdSrc, filepath);
-                    }
-                }
-
-                config.copy.main.src = [filepath];
-                config.copy.main.dest = dest;
-
-                grunt.config.merge(config);
-
-                log('Coping file to : ', path.join(dest,filepath));
+        var log = grunt.log.writeln,
+            contains = function (container, chunk) {
+                return container.indexOf(path.sep + chunk + path.sep) !== -1;
             }
-        }else{
-            grunt.log.error('Can\'t find deployment path. Did you create .workspace ?');
+
+        if (contains(filepath, 'src')) {
+
+            //js and html templates assets here 
+            var deploy = grunt.config.get(['deployment']),
+                copyConfig = {
+                    copy: {
+                        main: {
+                            expand: false,
+                            cwd: ''
+                        }
+                    }
+                };
+
+            if (!deploy) {
+                grunt.log.error('Can\'t find deployment path. Did you create .workspace ?');
+            } else {
+                dest = path.join(deploy, "scripts/");
+            }
+
+            if (!contains(filepath, 'jrs-ui-pro')) {
+                dest = path.join(dest, 'bower_components/');
+            } else {
+                var cwdSrc = 'jrs-ui-pro/src';
+
+                copyConfig.copy.main.cwd = path.join(cwd, cwdSrc);
+                copyConfig.copy.main.expand = true;
+
+                filepath = path.relative(cwdSrc, filepath);
+            }
+
+            copyConfig.copy.main.src = [filepath];
+            copyConfig.copy.main.dest = dest;
+
+            grunt.config.merge(copyConfig);
+
+            log('Coping file to : ', path.join(dest, filepath));
+
+        } else if (contains(filepath, 'themes')) {
+            //themes assets here
+
+            var cwdThemes = path.join(cwd, filepath.split('themes')[0], 'themes');
+            filepath = path.relative(cwdThemes, filepath);
+
+            var ftpConfig = [{
+                expand: true,
+                cwd: cwdThemes,
+                src: [
+                    filepath
+                ]
+            }];
+
+            console.log(ftpConfig);
+
+            grunt.config(['ftp_push', 'themes', 'files'], ftpConfig);
+
+        } else if(contains(filepath,'i18n')) {
+            //TODO: i18n bundles here
         }
-       
+
     });
 
     // Private tasks
