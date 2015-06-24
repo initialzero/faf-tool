@@ -58,7 +58,6 @@ module.exports = function(grunt) {
 
     var modules = new Modules(settings);
 
-
     function findLocalDeploymentPath(modules){
 
 
@@ -120,6 +119,7 @@ module.exports = function(grunt) {
                     });
     }
 
+
     grunt.initConfig({
 
         deployment: findLocalDeploymentPath(settings.modules),
@@ -163,8 +163,8 @@ module.exports = function(grunt) {
                     ]
                 }]
             }
-        }
 
+        }
     });
 
 
