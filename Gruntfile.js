@@ -7,6 +7,7 @@ module.exports = function(grunt) {
         cwd = grunt.option("cwd") || ".",
         ftwd = grunt.option("ftwd");
 
+
     require('load-grunt-tasks')(grunt);
     !grunt.option("no-time") && require('time-grunt')(grunt);
 
@@ -139,7 +140,10 @@ module.exports = function(grunt) {
                 }
             },
             themes: {
-                files: themesPathes(settings.modules),
+                files: themesPathes(settings.modules.concat([
+                    "jasperserver/jasperserver-war/src/main/webapp", 
+                    "jasperserver-pro/jasperserver-war/src/main/webapp"
+                ])),
                 tasks: ['ftp_push'],
                 options: {
                     nospawn: true
@@ -209,7 +213,7 @@ module.exports = function(grunt) {
                 return container.indexOf(path.sep + chunk + path.sep) !== -1;
             }
 
-        if (contains(filepath, 'src')) {
+        if (contains(filepath, 'src') && !contains(filepath, 'webapp')) {
 
             //js and html templates assets here 
             var deploy = grunt.config.get(['deployment']),
@@ -259,8 +263,6 @@ module.exports = function(grunt) {
                     filepath
                 ]
             }];
-
-            console.log(ftpConfig);
 
             grunt.config(['ftp_push', 'themes', 'files'], ftpConfig);
 
