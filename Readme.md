@@ -5,31 +5,32 @@ Command line utility which helps in setting up faf project
 ## Table of Contents
 
   1. [Install](#install)
-  1. [Usage](#usage)
-  1. [Settings File](#settings-file.json)
+  1. [Basic Usage](#basic-usage)
+  1. [Commands](#commands)
+  1. [CLI Options](#cli-options)
+  1. [Settings File](#settings-file)
 
 ## Install
 
-```
+```bash
 npm install -g faf-tool
-```
-
-## Usage
-
-### Setup Project Localy
-
-#### Get settings.json from some location
 
 ```
+
+##Basic Usage
+
+
+```bash
+
 mkdir diamond-feature
 cd diamond-feature
 wget http://someplace/blabla/settings.json
+
 ```
 
 Edit settings file, for example
 
-```
-cat settings.json
+```javascript
 {
   "svn-server": "svnserver.jaspersoft.com",
   "feature-name": "diamond-feature",
@@ -49,62 +50,107 @@ cat settings.json
 }
 ```
 
-#### Prepare local project to work
+Prepare local project to work
 
-```
+```bash
 faf-tool setup
+
 ```
 
 **[⬆ back to top](#table-of-contents)**
 
-### Create Project's Environemnt
-
-#### Create settings.json file
-
-```
-faf-tool
-mv settings.json.example settings.json
-```
-
-#### Create and prepare modules for commit
-
-> At first try to --dry-run !!!
-```
-faf-tool create-feature --dry-run
-```
-If everithing is fine then run
-
-```
-faf-tool create-feature
-```
-**[⬆ back to top](#table-of-contents)**
+##Commands
 
 #### setup
-Checkout selected modules and init it
+
+Checkout selected modules and run *npm* init
+
+```bash
+
+faf-tool setup
+
+```
 
 #### init
-Initialize selected modules: npm install && npm prune && grunt init
+
+Initialize for each module: npm install && npm prune && grunt init
+
+```bash
+
+faf-tool init
+
+```
 
 #### update-init
-Update and initialize selected modules: svn up && npm install && npm prune && grunt init
+
+Update and initialize for each module: svn up && npm install && npm prune && grunt init
+
+```bash
+
+faf-tool update-init
+
+
+```
 
 #### checkout-full
+
 Checking out faf modules and jrs if specified
+
+```bash
+
+faf-tool create-feature
+
+```
+
 
 #### downmerge
 Runs svn up and svn merge from trunk command for FAF modules and JRS
 Accepts "--accept=<value>" svn argument. Default "postpone".
 Accepts "--separate-changelist=<true|false>" svn argument. Default "true".
 
+```bash
+
+faf-tool downmerge
+
+```
+
+
 #### removecl
 removes all changelists which was created during downmerge task
 executed with --separate-changelist=true wich is set by default
 
+```bash
 
+faf-tool removecl
 
-## Settings File
 
 ```
+
+**[⬆ back to top](#table-of-contents)**
+
+## CLI options
+
+ - `--dry-run=true`
+    - `--verbose`
+    - `--no-time` - hide time report
+    - `--username=<username>` - svn username
+    - `--password=<password>` - svn password
+    - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
+    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
+    - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
+
+##Dry run example
+
+```bash
+faf-tool create-feature --dry-run
+
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+##Settings File
+
+```javascript
 {
   // by default it uses "https://" protocol
   "svn-server": "svnserver.jaspersoft.com",
@@ -139,31 +185,6 @@ executed with --separate-changelist=true wich is set by default
     "jrs-ui-pro"
   ]
 }
-```
-**[⬆ back to top](#table-of-contents)**
-
-## CLI Options
-
- - `--dry-run=true`
-    - `--verbose`
-    - `--no-time` - hide time report
-    - `--username=<username>` - svn username
-    - `--password=<password>` - svn password
-    - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
-    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
-    - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
-
-**[⬆ back to top](#table-of-contents)**
-
-
-## Examples
-
-Control verbosity level
-
-```
-faf-tool create-feature --dry-run
-faf-tool create-feature --dry-run=true --no-time
-faf-tool create-feature --verbose=true --dry-run=true
 ```
 
 **[⬆ back to top](#table-of-contents)**
