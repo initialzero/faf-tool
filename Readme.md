@@ -81,6 +81,17 @@ faf-tool init
 
 ```
 
+#### watch
+
+Start watchers assets like js,hml,css etc in all faf packages
+
+```bash
+
+faf-tool watch
+
+```
+> To find out local deployment you have to prepare .workspace file
+
 #### update-init
 
 Update and initialize for each module: svn up && npm install && npm prune && grunt init
