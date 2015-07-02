@@ -110,7 +110,6 @@ module.exports = function(grunt) {
 
     function themesPathes(modules){
 
-
         return modules.map(function(module){
                         return [
                             path.join(module, '/themes/**')
@@ -123,7 +122,7 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
 
-        deployment: findLocalDeploymentPath(settings.modules),
+        deployment: findLocalDeploymentPath(modules.getList()),
 
         clean: modules.getList().concat(["jasperserver", "jasperserver-pro"]),
         run: {
@@ -133,14 +132,14 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: srcPathes(settings.modules),
+                files: srcPathes(modules.getList()),
                 tasks: ['copy'],
                 options: {
                     nospawn: true
                 }
             },
             themes: {
-                files: themesPathes(settings.modules.concat([
+                files: themesPathes(modules.getList().concat([
                     "jasperserver/jasperserver-war/src/main/webapp", 
                     "jasperserver-pro/jasperserver-war/src/main/webapp"
                 ])),
@@ -211,7 +210,7 @@ module.exports = function(grunt) {
         var log = grunt.log.writeln,
             contains = function (container, chunk) {
                 return container.indexOf(path.sep + chunk + path.sep) !== -1;
-            }
+            };
 
         if (contains(filepath, 'src') && !contains(filepath, 'webapp')) {
 
