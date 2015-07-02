@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         this.getList().forEach(fn);
     };
     Modules.prototype.contain = function(module) {
-        return this.getList().hasOwnProperty(module);
+        return this.modules.hasOwnProperty(module);
     };
 
     Modules.prototype.getCeOverlayVersion = function() {
