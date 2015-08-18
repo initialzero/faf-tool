@@ -106,6 +106,8 @@ module.exports = function(grunt) {
     }
 
     function srcPathes(modules){
+        if (!modules.length) return [];
+
         return modules.map(function(module){
                         return [
                             path.join(module, '/src/**'), 
@@ -117,6 +119,7 @@ module.exports = function(grunt) {
     }
 
     function themesPathes(modules){
+        if (!modules.length) return [];
 
         return modules.map(function(module){
                         return [
