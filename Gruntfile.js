@@ -25,7 +25,7 @@ module.exports = function(grunt) {
     var password = grunt.option("password") || settings["password"];
 
     var Modules = function(settings) {
-        if (typeof settings.modules === "array") {
+        if (Array.isArray(settings.modules)) {
             var modules = {};
             settings.modules.forEach(function(module) {
                 modules[module] = {};
