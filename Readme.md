@@ -24,20 +24,20 @@ npm install -g faf-tool
 
 mkdir diamond-feature
 cd diamond-feature
-wget http://someplace/blabla/settings.json
+faf-tool
 
 ```
 
-Edit settings file, for example
+running faf-tool without command shows help and copy `settings.json.example` to current folder
+rename `settings.json.example` to `settings.json` and edit it, for example:
 
 ```javascript
 {
   "svn-server": "svnserver.jaspersoft.com",
-  "feature-name": "diamond-feature",
+  "release-cycle": "diamond",
+  "feature-name": "feature",
   "jasperserver-branch": "diamond-ce-feature",
   "jasperserver-pro-branch": "diamond-pro-feature",
-  "jasperserver-ci-path": "/path/to/my/jrs/ce/sources",
-  "jasperserver-pro-ci-path": "/path/to/my/jrs/pro/sources",
   "modules": [
     "bi-charts",
     "bi-dashboard",

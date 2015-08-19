@@ -1,0 +1,23 @@
+{
+  "svn-server": "svnserver.jaspersoft.com",
+
+  "release-cycle": "jade",
+  "feature-name": "tenant-import-export",
+
+  "jasperserver-branch": "jade-ce-tenant-import-export",
+  "jasperserver-pro-branch": "jade-pro-tenant-import-export",
+
+  "modules": [
+    "js-sdk",
+
+    "jrs-ui",
+
+    "bi-repository",
+    "bi-control",
+    "bi-report",
+    "bi-dashboard",
+
+    "jrs-ui-pro"
+  ]
+
+}
