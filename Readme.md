@@ -160,6 +160,7 @@ faf-tool create-feature --dry-run
 **[⬆ back to top](#table-of-contents)**
 
 ##Settings File
+Look at [settings.json samples](https://github.com/Jaspersoft/faf-tool/samples)
 
 ```javascript
 {

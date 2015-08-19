@@ -1,0 +1,22 @@
+{
+  "svn-server": "svnserver.jaspersoft.com",
+
+  "feature-name": "bugfix-6.0",
+
+  "jasperserver-branch": "bugfix-ce-6.0",
+  "jasperserver-pro-branch": "bugfix-pro-6.0",
+
+  "modules": [
+    "js-sdk",
+
+    "jrs-ui",
+
+    "bi-repository",
+    "bi-control",
+    "bi-report",
+    "bi-dashboard",
+
+    "jrs-ui-pro"
+  ]
+
+}

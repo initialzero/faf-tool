@@ -1,0 +1,21 @@
+{
+  "svn-server": "svnserver.jaspersoft.com",
+
+  "release-cycle": "jade",
+  "feature-name": "new-css-html",
+
+
+  "modules": [
+    "js-sdk",
+
+    "jrs-ui",
+
+    "bi-repository",
+    "bi-control",
+    "bi-report",
+    "bi-dashboard",
+
+    "jrs-ui-pro"
+  ]
+
+}
