@@ -376,6 +376,10 @@ module.exports = function(grunt) {
         executeAsyncTaskForAllModules.call(this, checkoutFull, "Checkout module: ", true);
     });
 
+    grunt.registerTask('switch', 'Switch repositories to another branch', function() {
+        executeAsyncTaskForAllModules.call(this, switchRepo, "Switch repository: ", true);
+    });
+
     grunt.registerTask('update-all', 'Update all selected repos', function() {
         executeAsyncTaskForAllModules.call(this, svnUpModule, "Update module: ", true);
     });
@@ -519,6 +523,15 @@ module.exports = function(grunt) {
     function checkoutFull(module, callback) {
         execSvn([
             "checkout",
+            getTargetUrl(module),
+            module
+        ], callback);
+    }
+
+
+    function switchRepo(module, callback) {
+        execSvn([
+            "switch",
             getTargetUrl(module),
             module
         ], callback);

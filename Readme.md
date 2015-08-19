@@ -113,6 +113,16 @@ faf-tool create-feature
 
 ```
 
+#### switch
+
+Switch repository to specified branch
+
+```bash
+
+faf-tool switch
+
+```
+
 
 #### downmerge
 Runs svn up and svn merge from trunk command for FAF modules and JRS
