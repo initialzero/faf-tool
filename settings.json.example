@@ -1,27 +1,21 @@
 {
   "svn-server": "svnserver.jaspersoft.com",
 
-  "release-cycle": "test-release-name",
-  "feature-name": "test-feature-name",
-
-  "faf-source-repo-path": "trunk",
+  "release-cycle": "<test-release-name>",
+  "feature-name": "<test-feature-name>",
 
   "jasperserver-branch": "<existed jrs ce branch name>",
   "jasperserver-pro-branch": "<existed jrs pro branch name>",
 
-  "jasperserver-ci-path": "<path to ci jrs>",
-  "jasperserver-pro-ci-path": "<path to ci jrs-pro>",
-
-
   "modules": {
-    "bi-control": {},
-    "bi-dashboard": {},
-    "bi-report": {},
-    "bi-repository": {},
+    "bi-control",
+    "bi-dashboard",
+    "bi-report",
+    "bi-repository",
 
-    "js-sdk": {},
-    "jrs-ui": {},
-    "jrs-ui-pro": {}
+    "js-sdk",
+    "jrs-ui",
+    "jrs-ui-pro"
   }
 
 }
