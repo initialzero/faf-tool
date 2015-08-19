@@ -6,3 +6,7 @@
 !package.json
 !settings.json.example
 !Readme.md
+!/bin
+!/bin/*
+!/samples
+!/samples/*
