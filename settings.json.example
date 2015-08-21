@@ -7,7 +7,7 @@
   "jasperserver-branch": "<existed jrs ce branch name>",
   "jasperserver-pro-branch": "<existed jrs pro branch name>",
 
-  "modules": {
+  "modules": [
     "bi-control",
     "bi-dashboard",
     "bi-report",
@@ -16,6 +16,6 @@
     "js-sdk",
     "jrs-ui",
     "jrs-ui-pro"
-  }
+  ]
 
 }

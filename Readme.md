@@ -147,18 +147,30 @@ faf-tool removecl
 
 ```
 
+
+#### cleanup
+runs svn cleanup for each module
+
+
+```bash
+
+faf-tool cleanup
+
+
+```
+
 **[⬆ back to top](#table-of-contents)**
 
 ## CLI options
 
  - `--dry-run=true`
-    - `--verbose`
-    - `--no-time` - hide time report
-    - `--username=<username>` - svn username
-    - `--password=<password>` - svn password
-    - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
-    - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
-    - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
+ - `--verbose`
+ - `--no-time` - hide time report
+ - `--username=<username>` - svn username
+ - `--password=<password>` - svn password
+ - `--accept=<value>` - argument for svn merge command, works for "downmerge" task. Default "postpone".
+ - `--parallel=<true|false>` - argument for parallel command execution, works for most tasks which use svn. Default "true".
+ - `--separate-changelist=<true|false>` - argument for adding module changes to a separate svn changelist, works for "downmerge" task. Default "true"
 
 ##Dry run example
 

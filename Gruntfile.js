@@ -384,6 +384,15 @@ module.exports = function(grunt) {
         executeAsyncTaskForAllModules.call(this, svnUpModule, "Update module: ", true);
     });
 
+    grunt.registerTask('cleanup', 'Run "svn cleanup" for each module', function() {
+        executeAsyncTaskForAllModules.call(this, function(module, callback) {
+            execSvn([
+                "cleanup",
+                module
+            ], callback)
+        }, "Cleanup module: ", true);
+    });
+
     grunt.registerTask('run-wait', 'run-wait', function() {
         modules.forEach(function(task) {
             grunt.task.run("run:" + task);
@@ -694,6 +703,8 @@ module.exports = function(grunt) {
         grunt.log.writeln(tab(3) + "accepts one argument \"--accept=postpone\". Default \"postpone\".");
         grunt.log.writeln(tab(2) + "\"removecl\":");
         grunt.log.writeln(tab(3) + "removes all changelists which was created during downmerge task");
+        grunt.log.writeln(tab(2) + "\"cleanup\":");
+        grunt.log.writeln(tab(3) + "run svn cleanup command for each module");
         grunt.log.writeln();
     }
 };
