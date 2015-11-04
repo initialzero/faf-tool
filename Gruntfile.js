@@ -7,11 +7,13 @@ module.exports = function(grunt) {
         cwd = grunt.option("cwd") || ".",
         ftwd = grunt.option("ftwd");
 
-
+    require('logfile-grunt')(grunt, { filePath: './faf-tool.log' });
     require('load-grunt-tasks')(grunt);
     !grunt.option("no-time") && require('time-grunt')(grunt);
 
     grunt.file.setBase(cwd);
+
+    grunt.log.writeln("faf tool started")
 
     try {
         settings = grunt.file.readJSON('settings.json');
@@ -669,7 +671,8 @@ module.exports = function(grunt) {
             args: args
         }, function(error, result, code) {
             if (error) grunt.log.error(error);
-            grunt.log.writeln(result);
+            grunt.log.writeln("Finished: ", args[0], args[1]);
+            grunt.verbose.writeln(result);
             callback(error, result);
         });
     }
